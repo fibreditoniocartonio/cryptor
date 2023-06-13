@@ -105,7 +105,6 @@
             if (i%3==0){multiplier=multiplier+3}
             if (i%5==0){multiplier=multiplier+5}
             if (i%7==0){multiplier=multiplier+7}
-            if (i%11==0){multiplier=multiplier+11}
             var newChar=parseInt(stringaFileLetta.charCodeAt(i),10)+((parseInt(keycode,10)*parseInt(multiplier,10)));
             stringaFileElaborata+=String.fromCharCode(newChar);
             //alert("i:"+i+" keycode:"+keycode+" multiplier:"+multiplier+" keycode*multiplier:"+(parseInt(keycode,10)*parseInt(multiplier,10))+"; input="+stringaFileLetta.charCodeAt(i)+" outputCode="+newChar+" outChar="+String.fromCharCode(newChar));
