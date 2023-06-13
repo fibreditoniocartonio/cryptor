@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<meta charset='utf-8'>
+
+<style>
+  .success {background-color: #04FF6D; width: max-content;} /* Green */
+  .fail {background-color: #f44336; width: max-content;} /* Red */
+  .removed {display: none;}
+</style>
+
+  <head>
+    <title>FibreDiTonioCartonio's Cryptor</title>
+  </head>
+  <body>
+    <header>
+      <h1 onClick="ChangeDebugMode()">Welcome to FibreDiTonioCartonio's Cryptor!</h1>
+        _________________________
+    </header>
+    
+    <main><br>
+        <div id="FileUploadDiv">
+            <h3>Upload here your file:</h3>
+            <input type="file" id="uploadFileBtn">
+            <br><br>
+            <button id="uploadBtn" onclick="uploadFile()">Upload</button>
+        </div>
+        <p class="fail" id="fileUploadedCheck">File not uploaded.</p>
+        <div id="PasswordDiv" class="removed">  
+            <p>Numeric key code: </p><input type="number" id="passwordInput">
+            <button id="confirmPasswordBtn" onclick="SetPassword()">Confirm Key Code</button>
+            <br><br>
+            <div id="enc-decBtns" class="removed">
+                <button id="encryptBtn" onclick="EncryptDecrypt(true)">Encrypt</button>
+                <button id="decryptBtn" onclick="EncryptDecrypt(false)">Decrypt</button>
+            </div>
+        </div>
+    </main>
+    
+    <footer><br>
+        _________________________
+        <br><br>
+        <input type="button" value="Reload Page" onClick="location.href=location.href">
+        <input type="button" value="My Github" onClick="location.href='https://www.github.com/fibreditoniocartonio/'">
+        <p id="debugModeId" class="removed">debugMode is on.</p>
+    </footer>
+  </body>
+  
+  <script charset='utf-8'>
+    var debugMode=false;
+    var stringaFileLetta="";
+    var nomeFile="";
+    var password=0;
+    
+    function ChangeDebugMode(){
+        debugMode=!debugMode
+        if(debugMode){document.getElementById("debugModeId").className=""
+        }else{ document.getElementById("debugModeId").className="removed"}
+    }
+  
+    async function uploadFile() {
+  		var uploadedFile = document.getElementById("uploadFileBtn").files[0];
+        nomeFile=document.getElementById("uploadFileBtn").files[0].name;
+  		if (uploadedFile.size > (5 * 1024 * 1024)) { //controlla la dimensione del file - non deve essere superiore a 5MB
+  			alert("File must be under 5MB");
+  			return false;
+  		}
+  		async function readFileAsText(uploadedFile) {
+  			let text = await new Promise((resolve) => {
+  				let fileReader = new FileReader();
+  				fileReader.onload = (e) => resolve(fileReader.result);
+  				fileReader.readAsText(uploadedFile);
+  			});
+  			return text;
+  		}
+  		stringaFileLetta = await readFileAsText(uploadedFile);
+        document.getElementById("fileUploadedCheck").className="success";
+        document.getElementById("fileUploadedCheck").innerHTML = "File " + nomeFile + " uploaded succesfully.";
+        document.getElementById("PasswordDiv").className="";
+        document.getElementById("passwordInput").value="";
+        document.getElementById("FileUploadDiv").className="removed";
+  		if(debugMode){alert("Input: "+stringaFileLetta);}
+  	}
+    
+    function SetPassword(){
+        password=document.getElementById('passwordInput').value;
+        if(password!="" && password>0){
+            document.getElementById("enc-decBtns").className="";
+        }else{
+            alert("You must set a key code, it has to be bigger than 0.")
+            document.getElementById("enc-decBtns").className="removed";
+        }
+    }    
+    
+    function EncryptDecrypt(doEncrypt){
+        var keycode=0;
+        if(doEncrypt){
+            keycode=parseInt(password,10);
+        }else{
+            keycode=-parseInt(password,10);
+        }
+        var stringaFileElaborata="";
+        for(var i=0; i<stringaFileLetta.length; i++){
+            var multiplier=1; //complicate things
+            if (i%2==0){multiplier=multiplier+2}
+            if (i%3==0){multiplier=multiplier+3}
+            if (i%5==0){multiplier=multiplier+5}
+            if (i%7==0){multiplier=multiplier+7}
+            if (i%11==0){multiplier=multiplier+11}
+            var newChar=parseInt(stringaFileLetta.charCodeAt(i),10)+((parseInt(keycode,10)*parseInt(multiplier,10)));
+            stringaFileElaborata+=String.fromCharCode(newChar);
+            //alert("i:"+i+" keycode:"+keycode+" multiplier:"+multiplier+" keycode*multiplier:"+(parseInt(keycode,10)*parseInt(multiplier,10))+"; input="+stringaFileLetta.charCodeAt(i)+" outputCode="+newChar+" outChar="+String.fromCharCode(newChar));
+        }
+        if(debugMode){alert("Output: "+stringaFileElaborata);
+        }else{SalvaFile(stringaFileElaborata);}
+    }
+        
+    function SalvaFile(stringaOutput) {   
+    	const dataDiOggi = creaData(); //prende la data di oggi
+    	var element = document.createElement('a');
+    	element.setAttribute('href', 'data:text/plain;charset="utf-8",' + encodeURIComponent(stringaOutput));
+    	element.setAttribute('download',  "output." + dataDiOggi +"."+ nomeFile);
+    	element.style.display = 'none';
+    	document.body.appendChild(element);
+    	element.click();
+    	document.body.removeChild(element);
+    
+    	function creaData() {
+    		var temp = new Date();
+    		var dateStr = padStr(temp.getFullYear()) + "." +
+    			padStr(1 + temp.getMonth()) + "." +
+                padStr(temp.getDate());            
+    		return dateStr;
+    
+    		function padStr(i) { //sistema tipo 01 e 11 per avere tutto su due cifre
+    			return (i < 10) ? "0" + i : "" + i;
+    		}
+    	}
+    }  
+  </script>
+  
+</html>
