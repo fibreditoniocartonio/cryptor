@@ -116,7 +116,8 @@
     function SalvaFile(stringaOutput) {   
     	const dataDiOggi = creaData(); //prende la data di oggi
     	var element = document.createElement('a');
-    	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(stringaOutput));
+        var fileBlob = new Blob([stringaOutput], {type: "application/octet-binary"});
+        element.setAttribute("href", URL.createObjectURL(fileBlob));
     	element.setAttribute('download',  "output." + dataDiOggi +"."+ nomeFile);
     	element.style.display = 'none';
     	document.body.appendChild(element);
