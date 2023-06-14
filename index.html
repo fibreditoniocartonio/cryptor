@@ -133,6 +133,7 @@
         }
         if(debugMode){alert("Output: "+stringaFileElaborata);}
         document.getElementById("TextPreviewText").value = stringaFileElaborata;
+        document.getElementById("TextPreviewText").readOnly = true; 
         document.getElementById("TextPreviewDiv").className="";
         document.getElementById("downloadBtn").className="";          
     }
