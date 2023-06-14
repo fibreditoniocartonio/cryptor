@@ -14,15 +14,15 @@
   <body>
     <header>
       <h1 onClick="ChangeDebugMode()">Welcome to FibreDiTonioCartonio's Cryptor!</h1>
-        _________________________
+      <hr>
     </header>
     
-    <main><br>
+    <main>
         <div id="FileUploadDiv">
             <h3>Upload here your file:</h3>
             <input type="file" id="uploadFileBtn">
             <br><br>
-            <button id="uploadBtn" onclick="uploadFile()">Upload</button>
+            <button id="uploadBtn" onclick="UploadFile()">Upload</button>
         </div>
         <p class="fail" id="fileUploadedCheck">File not uploaded.</p>
         <div id="PasswordDiv" class="removed">  
@@ -34,11 +34,17 @@
                 <button id="decryptBtn" onclick="EncryptDecrypt(false)">Decrypt</button>
             </div>
         </div>
+        <div id="TextPreviewDiv" class="removed">
+            <p>Text preview:</p>
+            <textarea id="TextPreviewText" rows="4" cols="50"></textarea>
+            <br>
+            <button id="submitBtn" onclick="SubmitFile()">Confirm and submit</button>
+            <button id="downloadBtn" onclick="DownloadFile()" class="removed">Download</button>
+        </div>        
     </main>
     
-    <footer><br>
-        _________________________
-        <br><br>
+    <footer>
+        <br><hr>
         <input type="button" value="Reload Page" onClick="location.href=location.href">
         <input type="button" value="My Github" onClick="location.href='https://www.github.com/fibreditoniocartonio/'">
         <p id="debugModeId" class="removed">debugMode is on.</p>
@@ -48,6 +54,7 @@
   <script charset='utf-8'>
     var debugMode=false;
     var stringaFileLetta="";
+    var stringaFileElaborata="";
     var nomeFile="";
     var password=0;
     
@@ -57,7 +64,8 @@
         }else{ document.getElementById("debugModeId").className="removed"}
     }
   
-    async function uploadFile() {
+    async function UploadFile() {
+        document.getElementById("TextPreviewText").value = "";
   		var uploadedFile = document.getElementById("uploadFileBtn").files[0];
         nomeFile=document.getElementById("uploadFileBtn").files[0].name;
   		if (uploadedFile.size > (5 * 1024 * 1024)) { //controlla la dimensione del file - non deve essere superiore a 5MB
@@ -75,16 +83,26 @@
   		stringaFileLetta = await readFileAsText(uploadedFile);
         document.getElementById("fileUploadedCheck").className="success";
         document.getElementById("fileUploadedCheck").innerHTML = "File " + nomeFile + " uploaded succesfully.";
+        document.getElementById("TextPreviewText").value = stringaFileLetta;
+        document.getElementById("TextPreviewDiv").className="";
+  	}
+    
+    function SubmitFile(){
         document.getElementById("PasswordDiv").className="";
         document.getElementById("passwordInput").value="";
         document.getElementById("FileUploadDiv").className="removed";
-  		if(debugMode){alert("Input: "+stringaFileLetta);}
-  	}
+        document.getElementById("TextPreviewDiv").className="removed";
+        document.getElementById("submitBtn").className="removed";
+        stringaFileLetta=document.getElementById("TextPreviewText").value;
+        if(debugMode){alert("Input: "+stringaFileLetta);}    
+    }
     
     function SetPassword(){
         password=document.getElementById('passwordInput').value;
         if(password!="" && password>0){
             document.getElementById("enc-decBtns").className="";
+            document.getElementById('passwordInput').disabled=true;
+            document.getElementById("confirmPasswordBtn").className="removed";
         }else{
             alert("You must set a key code, it has to be bigger than 0.")
             document.getElementById("enc-decBtns").className="removed";
@@ -95,10 +113,14 @@
         var keycode=0;
         if(doEncrypt){
             keycode=parseInt(password,10);
+            document.getElementById('encryptBtn').disabled=true;
+            document.getElementById("decryptBtn").className="removed";            
         }else{
             keycode=-parseInt(password,10);
+            document.getElementById('decryptBtn').disabled=true;
+            document.getElementById("encryptBtn").className="removed";            
         }
-        var stringaFileElaborata="";
+        stringaFileElaborata="";
         for(var i=0; i<stringaFileLetta.length; i++){
             var multiplier=1; //complicate things
             if (i%2==0){multiplier=multiplier+2}
@@ -109,16 +131,18 @@
             stringaFileElaborata+=String.fromCharCode(newChar);
             //alert("i:"+i+" keycode:"+keycode+" multiplier:"+multiplier+" keycode*multiplier:"+(parseInt(keycode,10)*parseInt(multiplier,10))+"; input="+stringaFileLetta.charCodeAt(i)+" outputCode="+newChar+" outChar="+String.fromCharCode(newChar));
         }
-        if(debugMode){alert("Output: "+stringaFileElaborata);
-        }else{SalvaFile(stringaFileElaborata);}
+        if(debugMode){alert("Output: "+stringaFileElaborata);}
+        document.getElementById("TextPreviewText").value = stringaFileElaborata;
+        document.getElementById("TextPreviewDiv").className="";
+        document.getElementById("downloadBtn").className="";          
     }
         
-    function SalvaFile(stringaOutput) {   
+    function DownloadFile() {   
     	const dataDiOggi = creaData(); //prende la data di oggi
     	var element = document.createElement('a');
-        var fileBlob = new Blob([stringaOutput], {type: "application/octet-binary"});
+        var fileBlob = new Blob([stringaFileElaborata], {type: "application/octet-binary"});
         element.setAttribute("href", URL.createObjectURL(fileBlob));
-    	element.setAttribute('download',  "output." + dataDiOggi +"."+ nomeFile);
+    	element.setAttribute('download',  "cryptor." + dataDiOggi +"."+ nomeFile);
     	element.style.display = 'none';
     	document.body.appendChild(element);
     	element.click();
