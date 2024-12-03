@@ -27,8 +27,9 @@
         <p class="fail" id="fileUploadedCheck">File not uploaded.</p>
         <div id="PasswordDiv" class="removed">  
             <p>Numeric key code: </p><input type="number" inputmode="numeric" id="passwordInput" style="text-security: disc; -webkit-text-security: disc; -moz-text-security: disc;">
-            <button id="confirmPasswordBtn" onclick="SetPassword()">Confirm Key Code</button>
+            <button id="showHideKeycodeBtn" onclick="ShowHidePassword()">Show/Hide</button>
             <br><br>
+            <button id="confirmPasswordBtn" onclick="SetPassword()">Confirm Key Code</button>
             <div id="enc-decBtns" class="removed">
                 <button id="encryptBtn" onclick="EncryptDecrypt(true)">Encrypt</button>
                 <button id="decryptBtn" onclick="EncryptDecrypt(false)">Decrypt</button>
@@ -39,7 +40,8 @@
             <textarea id="TextPreviewText" rows="4" cols="50"></textarea>
             <br>
             <button id="submitBtn" onclick="SubmitFile()">Confirm and submit</button>
-            <button id="downloadBtn" onclick="DownloadFile()" class="removed">Download</button>
+            <button id="downloadBtn" onclick="DownloadFile(false)" class="removed">Download</button>
+            <button id="encryptPlusDownloadBtn" onclick="DownloadFile(true)" class="removed">Encrypt back and download</button>
         </div>        
     </main>
     
@@ -55,6 +57,7 @@
     var debugMode=false;
     var stringaFileLetta="";
     var stringaFileElaborata="";
+    var showHidePasswordBool=false;
     var nomeFile="";
     var password=0;
     
@@ -97,6 +100,15 @@
         if(debugMode){alert("Input: "+stringaFileLetta);}    
     }
     
+    function ShowHidePassword(){
+        showHidePasswordBool=!showHidePasswordBool;
+        if(showHidePasswordBool){
+            document.getElementById('passwordInput').style="";
+        }else{
+            document.getElementById('passwordInput').style="text-security: disc; -webkit-text-security: disc; -moz-text-security: disc;";
+        }
+    }
+    
     function SetPassword(){
         password=document.getElementById('passwordInput').value;
         if(password!="" && password>0){
@@ -133,15 +145,20 @@
         }
         if(debugMode){alert("Output: "+stringaFileElaborata);}
         document.getElementById("TextPreviewText").value = stringaFileElaborata;
-        document.getElementById("TextPreviewText").readOnly = true; 
+        //document.getElementById("TextPreviewText").readOnly = true; 
         document.getElementById("TextPreviewDiv").className="";
-        document.getElementById("downloadBtn").className="";          
+        document.getElementById("downloadBtn").className="";
+        document.getElementById("encryptPlusDownloadBtn").className="";
     }
         
-    function DownloadFile() {   
+    function DownloadFile(doEncryptBeforeDownload) {
+        if(doEncryptBeforeDownload){
+            stringaFileLetta=document.getElementById("TextPreviewText").value;
+            EncryptDecrypt(true);
+        }   
     	const dataDiOggi = creaData(); //prende la data di oggi
     	var element = document.createElement('a');
-        var fileBlob = new Blob([stringaFileElaborata], {type: "application/octet-binary"});
+        var fileBlob = new Blob([document.getElementById("TextPreviewText").value], {type: "application/octet-binary"});
         element.setAttribute("href", URL.createObjectURL(fileBlob));
     	element.setAttribute('download',  "cryptor." + dataDiOggi +"."+ nomeFile);
     	element.style.display = 'none';
